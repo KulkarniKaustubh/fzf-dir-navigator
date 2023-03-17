@@ -4,6 +4,10 @@ This is a directory navigation tool for zsh. It uses `fzf` to provide an interac
 
 This plugin allows the user to switch to any directory from anywhere and to anywhere. It also maintains a history of recently visited directories. Additionally, you can use hotkeys to move back and forth between directories in the shell session.
 
+## Installation
+
+Refer [INSTALL.md](https://www.github.com/KulkarniKaustubh/fzf-dir-navigator/blob/main/INSTALL.md)
+
 ## Pre-requisites
 
 - `fzf`
