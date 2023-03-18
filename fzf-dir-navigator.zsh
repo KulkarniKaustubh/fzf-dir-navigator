@@ -32,11 +32,11 @@ fzf-dir() {
     # NOTE: If you are switching from `find` to `fd`, please use C-r
     # to reset the history.
     if ! command -v "fd" &> /dev/null; then
-        local home_find_cmd="find $HOME -type d | sed '1d'"
-        local pwd_find_cmd="find $PWD -type d | sed '1d'"
+        local home_find_cmd="find \"$HOME\" -type d | sed '1d'"
+        local pwd_find_cmd="find \"$PWD\" -type d | sed '1d'"
     else
-        local home_find_cmd="fd . $HOME -Ha --type directory" 
-        local pwd_find_cmd="fd . $PWD -Ha --type directory" 
+        local home_find_cmd="fd . \"$HOME\" -Ha --type directory"
+        local pwd_find_cmd="fd . \"$PWD\" -Ha --type directory"
     fi
 
     # If `tree` does not exist, the `ls` command will be used
