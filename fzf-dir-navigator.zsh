@@ -5,7 +5,9 @@
 #                                  DEFAULTS                                  
 # ---------------------------------------------------------------------------
 
-# C-f: Brings up the fzf-dir search window on the terminal.
+# C-f: Brings up the global search window on the terminal.
+# C-v: Brings up the current directory search window on the terminal.
+# C-r: Resets the history and brings up the global search window on the terminal.
 # Alt-left: Goes to the previous working directory. (similar to `prevd` in `fish`)
 # Alt-right: Goes to the next working directory. (similar to `nextd` in `fish`)
 # NOTE: If Alt-left or Alt-right is spammed, it will keep cycling through the list

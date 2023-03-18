@@ -20,7 +20,9 @@ Refer [INSTALL.md](https://www.github.com/KulkarniKaustubh/fzf-dir-navigator/blo
 
 ## Keybindings
 
-- `C-f`: Calls the `fzf-dir` widget and brings up the search window on the terminal.
+- `C-f`: Brings up the global search window on the terminal.
+- `C-v`: Brings up the current directory search window on the terminal.
+- `C-r`: Resets the recent directory history and brings up the global search window on the terminal.
 - `M(Alt)-left`: Goes to the previous working directory. (similar to `prevd` in `fish`)
 - `M(Alt)-right`: Goes to the next working directory. (similar to `nextd` in `fish`)
 
