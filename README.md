@@ -46,6 +46,7 @@ local history_file="$HOME/.local/share/zsh/widgets/fzf-dir-navigator-history"
 
 # ----------------------------------------------------------------------------
 
+```
 
 ## Bugs and Features
 
