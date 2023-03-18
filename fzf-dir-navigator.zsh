@@ -90,8 +90,8 @@ fzf-dir() {
                       --border "top" \
                       --prompt="Search for a directory > " \
                       --bind "change:first" \
-                      --bind "ctrl-f:change-preview($home_preview_cmd)+reload(eval $home_find_cmd)" \
-                      --bind "ctrl-r:execute-silent(rm $history_file && touch $history_file)+reload(eval $home_find_cmd)" \
+                      --bind "ctrl-f:change-preview($home_preview_cmd)+reload:$home_find_cmd" \
+                      --bind "ctrl-r:execute-silent(rm $history_file && touch $history_file)+reload:$home_find_cmd" \
                       --preview "$home_preview_cmd" \
                       --preview-window 35%,border-left \
               )
@@ -102,9 +102,9 @@ fzf-dir() {
                       --border "top" \
                       --prompt="Search for a directory > " \
                       --bind "change:first" \
-                      --bind "ctrl-f:change-preview($home_preview_cmd)+reload(eval $home_find_cmd)" \
-                      --bind "ctrl-v:change-preview($pwd_preview_cmd)+reload(eval $pwd_find_cmd)" \
-                      --bind "ctrl-r:execute-silent(rm $history_file && touch $history_file)+reload(eval $home_find_cmd)" \
+                      --bind "ctrl-f:change-preview($home_preview_cmd)+reload:$home_find_cmd" \
+                      --bind "ctrl-v:change-preview($pwd_preview_cmd)+reload:$pwd_find_cmd" \
+                      --bind "ctrl-r:execute-silent(rm $history_file && touch $history_file)+reload:$home_find_cmd" \
                       --preview "$pwd_preview_cmd" \
                       --preview-window 35%,border-left \
               )
