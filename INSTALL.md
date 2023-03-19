@@ -1,7 +1,17 @@
 # Installation
 
+- [Antigen](#antigen)
 - [Oh My Zsh](#oh-my-zsh)
 - [Manual](#manual)
+
+## Antigen
+
+1. Add the following to your `~/.zshrc`.
+    ```sh
+    antigen bundle KulkarniKaustubh/fzf-dir-navigator
+    ```
+
+2. Start a new terminal session or `source ~/.zshrc`
 
 ## Oh My Zsh
 
