@@ -34,19 +34,19 @@ fzf-dir() {
     # NOTE: If you are switching from `find` to `fd`, please use C-r
     # to reset the history.
     if ! command -v "fd" &> /dev/null; then
-        local home_find_cmd="find \"$HOME\" -type d | sed '1d'"
-        local pwd_find_cmd="find \"$PWD\" -type d | sed '1d'"
+        local home_find_cmd="find \"$HOME\" -type d -not -path \"$PWD/.git*\" | sed '1d'"
+        local pwd_find_cmd="find \"$PWD\" -type d -not -path \"$PWD/.git*\" | sed '1d'"
     else
-        local home_find_cmd="fd . \"$HOME\" -Ha --type directory"
-        local pwd_find_cmd="fd . \"$PWD\" -Ha --type directory"
+        local home_find_cmd="fd . \"$HOME\" -Ha --type directory --exclude \".git\""
+        local pwd_find_cmd="fd . \"$PWD\" -Ha --type directory --exclude \".git\""
     fi
 
     # If `tree` does not exist, the `ls` command will be used
     # for the dir preview.
     if ! command -v "tree" &> /dev/null; then
-        local preview_cmd="ls"
+        local preview_cmd="ls -a"
     else
-        local preview_cmd="tree -C -L 1"
+        local preview_cmd="tree -a -C -L 1"
     fi
 
     # ---------------------------------------------------------------------------
@@ -79,11 +79,11 @@ fzf-dir() {
     local home_sed_cmd="sed 's|$HOME|~|g'"
     local pwd_sed_cmd="sed 's|$PWD|\.|g'"
     
-    pwd_find_cmd="$pwd_find_cmd | $pwd_sed_cmd"
     home_find_cmd="$home_find_cmd | ($history_cmd && \cat) | $home_sed_cmd"
+    pwd_find_cmd="$pwd_find_cmd | $pwd_sed_cmd"
 
-    local pwd_preview_cmd="echo {} | sed 's|\.|$PWD|g' | xargs -d '\n' $preview_cmd | head -n 20"
     local home_preview_cmd="echo {} | sed 's|~|$HOME|g' | xargs -d '\n' $preview_cmd | head -n 20"
+    local pwd_preview_cmd="echo {} | sed 's|^\.|$PWD|g' | xargs -d '\n' $preview_cmd | head -n 20"
 
     if [[ $PWD == $HOME ]]; then
         dir=$(eval $home_find_cmd | awk 'NF==0{print;next} !seen[$0]++' |
