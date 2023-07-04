@@ -82,8 +82,8 @@ fzf-dir() {
     home_find_cmd="$home_find_cmd | ($history_cmd && \cat) | $home_sed_cmd"
     pwd_find_cmd="$pwd_find_cmd | $pwd_sed_cmd"
 
-    local home_preview_cmd="echo {} | sed 's|~|$HOME|g' | xargs -d '\n' $preview_cmd | head -n 20"
-    local pwd_preview_cmd="echo {} | sed 's|^\.|$PWD|g' | xargs -d '\n' $preview_cmd | head -n 20"
+    local home_preview_cmd="echo {} | sed 's|~|$HOME|g' | tr '\n' '\0' | xargs -0 $preview_cmd | head -n 20"
+    local pwd_preview_cmd="echo {} | sed 's|^\.|$PWD|g' | tr '\n' '\0' | xargs -0 $preview_cmd | head -n 20"
 
     if [[ $PWD == $HOME ]]; then
         dir=$(eval $home_find_cmd | awk 'NF==0{print;next} !seen[$0]++' |
