@@ -15,6 +15,10 @@
 
 # ----------------------------------------------------------------------------
 
+# Sourcing the fzf-dir-navigator-config shell script.
+dir="$(dirname "$(realpath "$0")")"
+source "${dir}/fzf-dir-navigator.conf"
+
 # Make `cd` use `pushd`
 setopt AUTO_PUSHD
 
@@ -34,11 +38,34 @@ fzf-dir() {
     # NOTE: If you are switching from `find` to `fd`, please use C-r
     # to reset the history.
     if ! command -v "fd" &> /dev/null; then
-        local home_find_cmd="find \"$HOME\" -type d -not -path \"$PWD/.git*\" | sed '1d'"
-        local pwd_find_cmd="find \"$PWD\" -type d -not -path \"$PWD/.git*\" | sed '1d'"
+        local options=" -type d"
+
+        if (( ${#exclusions[@]} != 0 )); then
+            options+=" \("
+
+            for exclude in "${exclusions[@]:0:${#exclusions[@]}-1}"
+            do
+                options+=" -name $exclude -o"
+            done
+
+            options+=" -name ${exclusions[@]: -1} \) -prune -o -type d -print"
+        fi
+
+        options+=" | sed '1d'"
+
+        local home_find_cmd="find \"$HOME\""$options
+        local pwd_find_cmd="find \"$PWD\""$options
     else
-        local home_find_cmd="fd . \"$HOME\" -Ha --type directory --exclude \".git\""
-        local pwd_find_cmd="fd . \"$PWD\" -Ha --type directory --exclude \".git\""
+        local options=" -Ha --type directory"
+
+        for exclude in "${exclusions[@]}"
+        do
+            options+=" --exclude $exclude"
+        done
+
+        local home_find_cmd="fd . \"$HOME\""$options
+        local pwd_find_cmd="fd . \"$PWD\""$options
+
     fi
 
     # If `tree` does not exist, the `ls` command will be used
@@ -54,10 +81,10 @@ fzf-dir() {
     # ---------------------------------------------------------------------------
 
     # Set the history size to display on your terminal.
-    local dir_histsize=10
+    local dir_histsize=$dir_histsize
 
     # Default history file where all the history will be stored.
-    local history_file="$HOME/.local/share/zsh/widgets/fzf-dir-navigator-history"
+    local history_file=$history_file
 
     # ----------------------------------------------------------------------------
 
@@ -78,7 +105,7 @@ fzf-dir() {
 
     local home_sed_cmd="sed 's|$HOME|~|g'"
     local pwd_sed_cmd="sed 's|$PWD|\.|g'"
-    
+
     home_find_cmd="$home_find_cmd | ($history_cmd && \cat) | $home_sed_cmd"
     pwd_find_cmd="$pwd_find_cmd | $pwd_sed_cmd"
 
