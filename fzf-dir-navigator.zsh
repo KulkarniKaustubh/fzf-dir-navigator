@@ -79,12 +79,9 @@ fzf-dir() {
 
     # Taken from the .conf file
     local dir_histsize=$dir_histsize
-    local history_file=$history_file
-
-    local dir
-
     local history_dir=$(dirname $history_file)
 
+    # Create history file if it does not exist.
     if [ ! -f $history_file ]; then
         if [ ! -d $history_dir ]; then
             mkdir -p $history_dir
@@ -96,6 +93,7 @@ fzf-dir() {
     local history_prompt="---- Recent History ----"
     local history_cmd="\tac \"$history_file\" && echo \"\n$history_prompt\n\""
 
+    # Replace $HOME with a "~" and $PWD with a "." for UI eye-candy.
     local home_sed_cmd="sed 's|$HOME|~|g'"
     local pwd_sed_cmd="sed 's|$PWD|\.|g'"
 
@@ -104,6 +102,8 @@ fzf-dir() {
 
     local home_preview_cmd="echo {} | sed 's|~|$HOME|g' | tr '\n' '\0' | xargs -0 $preview_cmd | head -n 20"
     local pwd_preview_cmd="echo {} | sed 's|^\.|$PWD|g' | tr '\n' '\0' | xargs -0 $preview_cmd | head -n 20"
+
+    local dir
 
     if [[ $PWD == $HOME ]]; then
         dir=$(eval $home_find_cmd | awk 'NF==0{print;next} !seen[$0]++' |
@@ -132,8 +132,10 @@ fzf-dir() {
               )
     fi
 
+    # Again replace $PWD with a "." and $HOME with a "~" for changing dir.
     dir=$(echo "$dir" | sed -e "s|^\.|$PWD|g" -e "s|~|$HOME|g")
 
+    # Do nothing if the history prompt is selected.
     if [[ $dir == $history_prompt ]] || [ -z "$dir" ]; then
         zle redisplay
         return 1
@@ -141,6 +143,8 @@ fzf-dir() {
 
     pushd $dir &>/dev/null
 
+    # If pushd gives an error for the selected directory, remove it from
+    # history if it exists.
     if [[ $? == 1 ]]; then
         zle redisplay
         echo "Directory does not exist. Removing this from the directory history."
@@ -153,6 +157,7 @@ fzf-dir() {
 
     local curr_dir_histsize=$(wc -l $history_file | awk '{ print $1 }')
 
+    # Remove the oldest entry in history once history size is exceeded.
     if [ $curr_dir_histsize -ge $dir_histsize ]; then
         sed -i '1d' $history_file
     fi
