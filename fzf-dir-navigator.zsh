@@ -37,6 +37,7 @@ fzf-dir() {
     # to look for directories.
     # NOTE: If you are switching from `find` to `fd`, please use C-r
     # to reset the history.
+    # "exclusions" taken from the .conf file.
     if ! command -v "fd" &> /dev/null; then
         local options=" -type d"
 
@@ -76,17 +77,9 @@ fzf-dir() {
         local preview_cmd="tree -a -C -L 1"
     fi
 
-    # ---------------------------------------------------------------------------
-    #                                CONFIGURATION                               
-    # ---------------------------------------------------------------------------
-
-    # Set the history size to display on your terminal.
+    # Taken from the .conf file
     local dir_histsize=$dir_histsize
-
-    # Default history file where all the history will be stored.
     local history_file=$history_file
-
-    # ----------------------------------------------------------------------------
 
     local dir
 

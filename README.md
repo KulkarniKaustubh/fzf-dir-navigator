@@ -28,27 +28,12 @@ Refer [INSTALL.md](https://www.github.com/KulkarniKaustubh/fzf-dir-navigator/blo
 
 ## Configuration
 
-There are only 2 things configurable easily (unless you can hack around with `fzf`'s options, then it is quite configurable).
-
+Update: There is a new "config" file now where some values can be tweaked.
 - `dir_histsize`: Number of recent directories to store and display.
 - `history_file`: File to store the history.
+- `exclusions`: The directories to exclude while using this widget.
 
-You can find this in [this file](https://www.github.com/KulkarniKaustubh/fzf-dir-navigator/blob/main/fzf-dir-navigator.zsh).
-
-```sh
-# ---------------------------------------------------------------------------
-#                                CONFIGURATION                               
-# ---------------------------------------------------------------------------
-
-# Set the history size to display on your terminal.
-local dir_histsize=10
-
-# Default history file where all the history will be stored.
-local history_file="$HOME/.local/share/zsh/widgets/fzf-dir-navigator-history"
-
-# ----------------------------------------------------------------------------
-
-```
+You can find this in [this file](https://www.github.com/KulkarniKaustubh/fzf-dir-navigator/blob/main/fzf-dir-navigator.conf).
 
 ## Bugs and Features
 
