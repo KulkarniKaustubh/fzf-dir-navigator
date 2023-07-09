@@ -15,14 +15,25 @@
 
 # ----------------------------------------------------------------------------
 
-# Sourcing the fzf-dir-navigator-config shell script.
+# Sourcing the fzf-dir-navigator.conf shell script.
+# If a custom config exists, it will use that, else it will use the default.
 dir="$(dirname "$(realpath "$0")")"
-source "${dir}/fzf-dir-navigator.conf"
+source "$dir/fzf-dir-navigator-custom.conf" 2> /dev/null ||
+    source "${dir}/fzf-dir-navigator.conf"
 
 # Make `cd` use `pushd`
 setopt AUTO_PUSHD
 
-fzf-dir() {
+function run-precmd() {
+    # precmd functions are the functions/hooks run everytime to reset the prompt
+    local precmd
+    for precmd in $precmd_functions; do
+      $precmd
+    done
+    zle reset-prompt
+}
+
+fzf-dir-navigator() {
     # ---------------------------------------------------------------------------
     #                            PRE-REQUISITE CHECKS                            
     # ---------------------------------------------------------------------------
@@ -33,13 +44,22 @@ fzf-dir() {
         return -1
     fi
 
+    # `fzf` is a must have for this to work!
+    if ! command -v "tac" &> /dev/null; then
+        echo "Install coreutils to get the tac command."
+        return -1
+    fi
+
     # If `fd` does not exist, the `find` command will be used
     # to look for directories.
     # NOTE: If you are switching from `find` to `fd`, please use C-r
     # to reset the history.
     # "exclusions" taken from the .conf file.
+    local options
+    local find_cmd
+
     if ! command -v "fd" &> /dev/null; then
-        local options=" -type d"
+        options=" -type d"
 
         if (( ${#exclusions[@]} != 0 )); then
             options+=" \("
@@ -54,28 +74,26 @@ fzf-dir() {
 
         options+=" | sed '1d'"
 
-        local home_find_cmd="find \"$HOME\""$options
-        local pwd_find_cmd="find \"$PWD\""$options
+        find_cmd="find"
     else
-        local options=" -Ha --type directory"
+        options=" -Ha --type directory"
 
         for exclude in "${exclusions[@]}"
         do
             options+=" --exclude $exclude"
         done
 
-        local home_find_cmd="fd . \"$HOME\""$options
-        local pwd_find_cmd="fd . \"$PWD\""$options
-
+        find_cmd="fd ."
     fi
 
     # If `tree` does not exist, the `ls` command will be used
     # for the dir preview.
     if ! command -v "tree" &> /dev/null; then
-        local preview_cmd="ls -a"
+        local preview_tool="ls -a"
     else
-        local preview_cmd="tree -a -C -L 1"
+        local preview_tool="tree -a -C -L 1"
     fi
+    local preview_cmd=" | tr '\n' '\0' | xargs -0 $preview_tool | head -n 20"
 
     # Taken from the .conf file
     local dir_histsize=$dir_histsize
@@ -93,43 +111,31 @@ fzf-dir() {
     local history_prompt="---- Recent History ----"
     local history_cmd="\tac \"$history_file\" && echo \"\n$history_prompt\n\""
 
-    # Replace $HOME with a "~" and $PWD with a "." for UI eye-candy.
-    local home_sed_cmd="sed 's|$HOME|~|g'"
-    local pwd_sed_cmd="sed 's|$PWD|\.|g'"
+    # Replace $HOME with a "~" and $PWD with a "." for UI eye-candy using the
+    # sed command.
+    local home_find_cmd="$find_cmd \"$HOME\" $options | ($history_cmd && \cat) | sed 's|$HOME|~|g'"
+    local pwd_find_cmd="$find_cmd \"$PWD\" $options | sed 's|$PWD|\.|g'" 
 
-    home_find_cmd="$home_find_cmd | ($history_cmd && \cat) | $home_sed_cmd"
-    pwd_find_cmd="$pwd_find_cmd | $pwd_sed_cmd"
-
-    local home_preview_cmd="echo {} | sed 's|~|$HOME|g' | tr '\n' '\0' | xargs -0 $preview_cmd | head -n 20"
-    local pwd_preview_cmd="echo {} | sed 's|^\.|$PWD|g' | tr '\n' '\0' | xargs -0 $preview_cmd | head -n 20"
+    local home_preview_cmd="echo {} | sed 's|~|$HOME|g' $preview_cmd"
+    local pwd_preview_cmd="echo {} | sed 's|^\.|$PWD|g' $preview_cmd"
 
     local dir
 
+    # Single `fzf` command with all config options.
+    local fzf_cmd="fzf --height=60% \
+        --header=\"\"$search_home\": search ~ | \"$search_pwd\" : search . | \"$reset_history\": reset history\" \
+        --border \"top\" \
+        --prompt=\"Search for a directory > \" \
+        --bind \"change:first\" \
+        --bind \"\"$search_home\":change-preview(\$home_preview_cmd)+reload:\$home_find_cmd\" \
+        --bind \"\"$search_pwd\":change-preview(\$pwd_preview_cmd)+reload:\$pwd_find_cmd\" \
+        --bind \"\"$reset_history\":execute-silent(rm \$history_file \&\& touch \$history_file)+reload:\$home_find_cmd\" \
+        --preview-window 35%,border-left"
+
     if [[ $PWD == $HOME ]]; then
-        dir=$(eval $home_find_cmd | awk 'NF==0{print;next} !seen[$0]++' |
-                  fzf --height=60% \
-                      --header="C-f : search ~ | C-r : reset history" \
-                      --border "top" \
-                      --prompt="Search for a directory > " \
-                      --bind "change:first" \
-                      --bind "ctrl-f:change-preview($home_preview_cmd)+reload:$home_find_cmd" \
-                      --bind "ctrl-r:execute-silent(rm $history_file && touch $history_file)+reload:$home_find_cmd" \
-                      --preview "$home_preview_cmd" \
-                      --preview-window 35%,border-left \
-              )
+        dir=$(eval "$home_find_cmd | awk 'NF==0{print;next} !seen[\$0]++' | $fzf_cmd --preview \"$home_preview_cmd\"")
     else
-        dir=$(eval $pwd_find_cmd | awk 'NF==0{print;next} !seen[$0]++' |
-                  fzf --header="C-f : search ~ | C-v : search . | C-r : reset history" \
-                      --height=60% \
-                      --border "top" \
-                      --prompt="Search for a directory > " \
-                      --bind "change:first" \
-                      --bind "ctrl-f:change-preview($home_preview_cmd)+reload:$home_find_cmd" \
-                      --bind "ctrl-v:change-preview($pwd_preview_cmd)+reload:$pwd_find_cmd" \
-                      --bind "ctrl-r:execute-silent(rm $history_file && touch $history_file)+reload:$home_find_cmd" \
-                      --preview "$pwd_preview_cmd" \
-                      --preview-window 35%,border-left \
-              )
+        dir=$(eval "$pwd_find_cmd | awk 'NF==0{print;next} !seen[\$0]++' | $fzf_cmd --preview \"$home_preview_cmd\"")
     fi
 
     # Again replace $PWD with a "." and $HOME with a "~" for changing dir.
@@ -163,47 +169,32 @@ fzf-dir() {
     fi
     echo $dir >> $history_file
 
-    # precmd functions are the functions/hooks run everytime to reset the prompt
-    local precmd
-    for precmd in $precmd_functions; do
-      $precmd
-    done
-    zle reset-prompt
+    run-precmd
 
     return $?
 }
 
-zle -N fzf-dir
-bindkey "^F" fzf-dir
+zle -N fzf-dir-navigator
+bindkey "^F" fzf-dir-navigator
 
 prevd() {
     pushd +1 >/dev/null 2>&1
-
-    # precmd functions are the functions/hooks run everytime to reset the prompt
-    local precmd
-    for precmd in $precmd_functions; do
-      $precmd
-    done
-    zle reset-prompt
+    run-precmd
 
     return $?
 }
 
 zle -N prevd
+# Binds Alt-left to `prevd`.
 bindkey "^[[1;3D" prevd
 
 nextd() {
     pushd -0 >/dev/null 2>&1
-
-    # precmd functions are the functions/hooks run everytime to reset the prompt
-    local precmd
-    for precmd in $precmd_functions; do
-      $precmd
-    done
-    zle reset-prompt
+    run-precmd
 
     return $?
 }
 
 zle -N nextd
+# Binds Alt-right to `prevd`.
 bindkey "^[[1;3C" nextd
