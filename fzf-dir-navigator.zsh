@@ -18,8 +18,8 @@
 # Sourcing the fzf-dir-navigator.conf shell script.
 # If a custom config exists, it will use that, else it will use the default.
 dir="$(dirname "$(realpath "$0")")"
-source "$dir/fzf-dir-navigator-custom.conf" 2> /dev/null ||
-    source "${dir}/fzf-dir-navigator.conf"
+source "${dir}/fzf-dir-navigator.conf"
+source "$dir/fzf-dir-navigator-custom.conf" 2> /dev/null
 
 # Make `cd` use `pushd`
 setopt AUTO_PUSHD
