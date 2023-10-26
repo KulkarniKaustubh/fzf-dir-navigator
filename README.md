@@ -17,6 +17,7 @@ https://user-images.githubusercontent.com/55317079/226093381-87d26d2d-8845-4627-
 Specific to MacOS:
 - This plugin uses the `tac` command which is not available on macOS by default. It can be installed using `brew install coreutils`.
 - Access must be given to access folders on the system since the tool searches for all directories in `/Users/<username/`.
+- In the [configuration](#Configuration), there is an instruction to add the `os` option to the config file. Please set that to `os="mac"`.
 
 ## Installation
 
@@ -97,6 +98,7 @@ cp /path/to/cloned/repo/fzf-dir-navigator.conf /path/to/cloned/repo/fzf-dir-navi
 | `search_home` | Keybinding used to search the `$HOME` directory. If you are changing the `search_home` keybinding, please be sure to add it to your `.zshrc` file as well. For example, if you are changing it to <kbd>ctrl-p</kbd>, add `bindkey "^P" fzf-dir-navigator` to your `.zshrc` after sourcing the plugin. Otherwise the keybinding to open the plugin on the terminal would still remain <kbd>ctrl-f</kbd>, and <kbd>ctrl-p</kbd> would work only after the plugin is open. | <kbd>ctrl-f</kbd>
 | `search_pwd` | Keybinding used to search the `$PWD` directory. | <kbd>ctrl-v</kbd>
 | `reset_history` | Keybinding used to reset the directory history. | <kbd>ctrl-r</kbd>
+| `os` | To set which OS is being used. | The default assumes Linux and does not need a value. If you have a Mac, set `os="mac"`.
 
 ## Bugs and Features
 
