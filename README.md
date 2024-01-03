@@ -16,7 +16,7 @@ https://user-images.githubusercontent.com/55317079/226093381-87d26d2d-8845-4627-
 
 Specific to MacOS:
 - This plugin uses the `tac` command which is not available on macOS by default. It can be installed using `brew install coreutils`.
-- Access must be given to access folders on the system since the tool searches for all directories in `/Users/<username/`.
+- Access must be given to access folders on the system since the tool searches for all directories in `/Users/<username>/`. [Link](https://support.apple.com/en-in/guide/mac-help/mchld5a35146/mac) to Apple's support page for the same.
 - In the [configuration](#Configuration), there is an instruction to add the `os` option to the config file. Please set that to `os="mac"`.
 
 ## Installation
