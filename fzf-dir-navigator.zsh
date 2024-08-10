@@ -165,11 +165,11 @@ fzf-dir-navigator() {
 
     # Remove the oldest entry in history once history size is exceeded.
     if [ $curr_dir_histsize -ge $dir_histsize ]; then
-      if [ -n "$os" ] && [ "$os" == "mac" ]; then
-        sed -i '.bak' '1d' $history_file
-      else
-        sed -i '1d' $history_file
-      fi
+        if [ -n "$os" ] && [ "$os" = "mac" ]; then
+            sed -i '.bak' '1d' $history_file
+        else
+            sed -i '1d' $history_file
+        fi
     fi
     echo $dir >> $history_file
 
