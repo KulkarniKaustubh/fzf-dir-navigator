@@ -113,7 +113,7 @@ fzf-dir-navigator() {
 
     # Replace $HOME with a "~" and $PWD with a "." for UI eye-candy using the
     # sed command.
-    local home_find_cmd="$find_cmd \"$HOME\" $options | ($history_cmd && \cat) | sed 's|$HOME|~|g'"
+    local home_find_cmd="$find_cmd ${directories_to_search[*]} $options | ($history_cmd && \cat) | sed 's|$HOME|~|g'"
     local pwd_find_cmd="$find_cmd \"$PWD\" $options | sed 's|$PWD|\.|g'" 
 
     local home_preview_cmd="echo {} | sed 's|~|$HOME|g' $preview_cmd"
